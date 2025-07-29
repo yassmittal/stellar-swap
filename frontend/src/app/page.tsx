@@ -1,10 +1,10 @@
-import { AccountInfo } from '@/components/account/AccountInfo'
+import SwapInterface from '@/components/SwapInterface'
 
 export default function Home() {
   return (
     <div className="max-w-2xl mx-auto">
       Hello swap
-      <AccountInfo />
+      <SwapInterface />
     </div>
   )
 }
