@@ -2,6 +2,7 @@
 
 import { Badge } from '../ui/badge'
 import { WalletButton } from '../WalletButton'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export const Header = () => {
   return (
@@ -12,6 +13,7 @@ export const Header = () => {
             <h1 className="text-xl font-bold">Stellar Swap</h1>
             <Badge>Testnet</Badge>
           </div>
+          <ConnectButton />
           <WalletButton />
         </div>
       </div>
