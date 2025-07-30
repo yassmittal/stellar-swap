@@ -5,7 +5,8 @@
     "email": "yashmittalmm@gmail.com"
   },
   "scripts": {
-    "dev": "bun --watch run src/server.ts"
+    "dev": "bun --watch run src/server.ts",
+    "generate:swagger": "node src/swagger.js"
   },
   "dependencies": {
     "@1inch/cross-chain-sdk": "^0.1.15",
