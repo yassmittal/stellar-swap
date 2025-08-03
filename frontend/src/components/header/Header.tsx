@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowDownUpIcon } from 'lucide-react'
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit'
-import { StellarWalletConnector } from '../StellarWalletConnector'
+import { StellarWalletConnector } from '../wallet/StellarWalletConnector'
 
 export const Header = () => {
   const [scrolled, setScrolled] = useState(false)
