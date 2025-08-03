@@ -10,16 +10,46 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
-import { useFreighter } from '@/hooks/useFreighter'
 import { formatAddress } from '@/lib/utils'
+import { getPublicKey, connect, disconnect } from '@/lib/wallet'
 
 const STELLAR_FAUCET_URL = 'https://friendbot.stellar.org'
 
-export const StellerWalletButton = () => {
-  const { publicKey, isConnected, connect, disconnect, connecting, error } = useFreighter()
+export const StellarWalletConnector = () => {
+  const [publicKey, setPublicKey] = useState<string | null>(null)
+  const [isConnecting, setIsConnecting] = useState(false)
   const [copied, setCopied] = useState(false)
   const [xlmBalance, setXlmBalance] = useState<number | undefined>()
   const [isLoadingBalance, setIsLoadingBalance] = useState(false)
+
+  useEffect(() => {
+    const checkWallet = async () => {
+      const key = await getPublicKey()
+      setPublicKey(key)
+    }
+    checkWallet()
+  }, [])
+
+  const handleConnect = async () => {
+    setIsConnecting(true)
+    try {
+      await connect(async () => {
+        const key = await getPublicKey()
+        setPublicKey(key)
+      })
+    } catch (err) {
+      console.error('Connect failed', err)
+    } finally {
+      setIsConnecting(false)
+    }
+  }
+
+  const handleDisconnect = async () => {
+    await disconnect(async () => {
+      setPublicKey(null)
+      setXlmBalance(undefined)
+    })
+  }
 
   const handleCopy = () => {
     if (publicKey) {
@@ -38,43 +68,42 @@ export const StellerWalletButton = () => {
 
   useEffect(() => {
     const fetchBalance = async () => {
-      if (!publicKey || !isConnected) return
+      if (!publicKey) return
 
       setIsLoadingBalance(true)
       try {
         const response = await fetch(`https://horizon-testnet.stellar.org/accounts/${publicKey}`)
         if (response.ok) {
           const accountData = await response.json()
-          const xlmBalance = accountData.balances.find(
+          const nativeBalance = accountData.balances.find(
             (balance: { asset_type: string }) => balance.asset_type === 'native'
           )
-          setXlmBalance(Number.parseFloat(xlmBalance?.balance || '0'))
+          setXlmBalance(Number.parseFloat(nativeBalance?.balance || '0'))
         }
-      } catch (error) {
-        console.error('Error fetching XLM balance:', error)
+      } catch (err) {
+        console.error('Error fetching XLM balance:', err)
       } finally {
         setIsLoadingBalance(false)
       }
     }
 
     fetchBalance()
-  }, [publicKey, isConnected])
+  }, [publicKey])
 
-  if (!isConnected || !publicKey) {
+  if (!publicKey) {
     return (
       <div className="flex flex-col items-center gap-2">
         <button
-          onClick={connect}
-          disabled={connecting}
+          onClick={handleConnect}
+          disabled={isConnecting}
           className="flex items-center gap-2 px-4 py-2 bg-[#1A1B1F] rounded-full border border-[#383838] hover:border-[#4c4c4c] transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Wallet className="h-4 w-4 text-[#558EB4] group-hover:text-[#1388D5] transition-colors" />
           <span className="text-white text-sm font-medium">
-            {connecting ? 'Connecting...' : 'Connect Freighter'}
+            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
           </span>
-          {connecting && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
+          {isConnecting && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
         </button>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
       </div>
     )
   }
@@ -84,10 +113,7 @@ export const StellerWalletButton = () => {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 px-4 py-2 bg-[#1A1B1F] rounded-full border border-[#383838] hover:border-[#4c4c4c] transition-colors group">
           <Wallet className="h-4 w-4 text-[#558EB4] group-hover:text-[#1388D5] transition-colors" />
-          <span className="text-white text-sm font-medium">
-            <span className="hidden sm:inline">{formatAddress(publicKey)}</span>
-            <span className="sm:hidden">{formatAddress(publicKey)}</span>
-          </span>
+          <span className="text-white text-sm font-medium">{formatAddress(publicKey)}</span>
           <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" />
         </button>
       </DropdownMenuTrigger>
@@ -97,7 +123,7 @@ export const StellerWalletButton = () => {
         align="end"
       >
         <DropdownMenuLabel className="text-lg font-bold text-white px-2 pt-2">
-          Freighter Wallet
+          Stellar Wallet
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator className="bg-[#383838]" />
@@ -138,7 +164,7 @@ export const StellerWalletButton = () => {
         <DropdownMenuSeparator className="bg-[#383838]" />
 
         <DropdownMenuItem
-          onClick={disconnect}
+          onClick={handleDisconnect}
           className="cursor-pointer flex items-center gap-2 text-red-500 hover:text-red-400 focus:text-red-400 hover:bg-[#1a1b1f] focus:bg-[#1a1b1f] rounded-lg px-4 py-2 transition-colors"
         >
           <LogOut className="h-4 w-4" />

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowDownUpIcon } from 'lucide-react'
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit'
-import { StellerWalletButton } from '../StellerWalletButton'
+import { StellarWalletConnector } from '../StellarWalletConnector'
 
 export const Header = () => {
   const [scrolled, setScrolled] = useState(false)
@@ -41,7 +41,7 @@ export const Header = () => {
 
         <div className="flex items-center gap-3">
           <RainbowConnectButton label="Connect ETH Wallet" />
-          <StellerWalletButton />
+          <StellarWalletConnector />
         </div>
       </div>
     </header>
