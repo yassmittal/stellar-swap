@@ -1,4 +1,4 @@
-import * as Client from '../../packages/silver/dist/index'
+import * as Client from '../../packages/swap/dist/index'
 import { rpcUrl } from './util'
 
 const client = new Client.Client({
